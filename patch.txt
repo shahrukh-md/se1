@@ -14,3 +14,356 @@ services:
     container_name: nginx_server
     ports:
       - "80:80"
+
+For this Docker Compose – Flask API and Nginx (25 Marks) assignment, I’ll give you the complete practical procedure from creating the folder to running, testing, and stopping the containers.
+
+We’ll use a real Flask application and an Nginx container.
+
+Experiment: Docker Compose – Flask API and Nginx
+
+Aim
+
+To deploy a Flask API and Nginx web server in separate Docker containers using Docker Compose, exposing Flask on port 5000 and Nginx on port 80.
+
+⸻
+
+Step 1: Create a project directory
+
+Open CMD or terminal and execute:
+
+mkdir restaurant-app
+cd restaurant-app
+
+Create a folder for the Flask application:
+
+mkdir flask-app
+
+Your project structure will be:
+
+restaurant-app/
+│
+├── docker-compose.yml
+│
+└── flask-app/
+    ├── Dockerfile
+    └── app.py
+
+⸻
+
+Step 2: Create the Flask application
+
+Inside the flask-app folder, create a file named:
+
+app.py
+
+Add the following code:
+
+from flask import Flask
+app = Flask(__name__)
+@app.route('/')
+def home():
+    return "Restaurant Food Ordering API is running!"
+@app.route('/menu')
+def menu():
+    return {
+        "menu": [
+            {"item": "Pizza", "price": 250},
+            {"item": "Burger", "price": 150},
+            {"item": "Pasta", "price": 200}
+        ]
+    }
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+
+Explanation:
+
+* Flask(__name__) creates the Flask application.
+* / is the home route.
+* /menu returns menu items in JSON format.
+* host='0.0.0.0' allows the application to accept connections from outside the container.
+* port=5000 runs Flask on port 5000.
+
+⸻
+
+Step 3: Create the Flask Dockerfile
+
+Inside the flask-app directory, create a file named:
+
+Dockerfile
+
+Add:
+
+FROM python:3.9
+WORKDIR /app
+COPY app.py .
+RUN pip install flask
+EXPOSE 5000
+CMD ["python", "app.py"]
+
+Explanation of Dockerfile instructions
+
+Instruction	Purpose
+FROM	Specifies the base image
+WORKDIR	Sets the working directory inside the container
+COPY	Copies application files into the container
+RUN	Executes commands while building the image
+EXPOSE	Documents the port used by the application
+CMD	Specifies the command executed when the container starts
+
+⸻
+
+Step 4: Create the Docker Compose file
+
+Go back to the main restaurant-app directory.
+
+Create a file named:
+
+docker-compose.yml
+
+Add the following configuration:
+
+services:
+  flask:
+    build: ./flask-app
+    container_name: flask_container
+    ports:
+      - "5000:5000"
+  nginx:
+    image: nginx:latest
+    container_name: nginx_container
+    ports:
+      - "80:80"
+
+Explanation
+
+Configuration	Purpose
+services	Defines the containers
+flask	Flask service name
+build	Builds the Flask image from the Dockerfile
+container_name	Assigns a container name
+ports	Maps host ports to container ports
+nginx	Nginx service
+image	Downloads the Nginx image from Docker Hub
+
+Port mapping
+
+ports:
+  - "5000:5000"
+
+Format:
+
+HOST_PORT:CONTAINER_PORT
+
+Flask:
+
+5000:5000
+
+Nginx:
+
+80:80
+
+Both containers run independently, so they don’t conflict.
+
+⸻
+
+Step 5: Build and start the containers
+
+Open your terminal in the restaurant-app directory.
+
+Execute:
+
+docker compose up -d --build
+
+Meaning
+
+* up – Creates and starts containers.
+* -d – Runs containers in the background.
+* --build – Builds the Flask image before starting.
+
+Expected result:
+
+Docker builds the Flask image, pulls the Nginx image, and starts both containers.
+
+⸻
+
+Step 6: Verify running containers
+
+Execute:
+
+docker ps
+
+You should see two running containers:
+
+Container	Image	Port
+flask_container	Flask custom image	5000
+nginx_container	nginx	80
+
+Take a screenshot of the output for your lab record.
+
+⸻
+
+Step 7: Test Flask application
+
+Open your browser.
+
+Visit:
+
+Flask Home:
+
+http://localhost:5000
+
+Expected output:
+
+Restaurant Food Ordering API is running!
+
+Visit:
+
+Flask Menu API:
+
+http://localhost:5000/menu
+
+Expected output:
+
+{
+  "menu": [
+    {
+      "item": "Pizza",
+      "price": 250
+    },
+    {
+      "item": "Burger",
+      "price": 150
+    },
+    {
+      "item": "Pasta",
+      "price": 200
+    }
+  ]
+}
+
+⸻
+
+Step 8: Test Nginx
+
+Open your browser and visit:
+
+http://localhost
+
+Expected output:
+
+You should see the default Nginx welcome page:
+
+Welcome to nginx!
+
+This confirms that Nginx is running successfully on port 80.
+
+⸻
+
+Step 9: View container logs
+
+To view logs of both services:
+
+docker compose logs
+
+To view only Flask logs:
+
+docker compose logs flask
+
+To view only Nginx logs:
+
+docker compose logs nginx
+
+⸻
+
+Step 10: Stop the containers
+
+Execute:
+
+docker compose down
+
+This stops and removes the containers created by Docker Compose.
+
+⸻
+
+Complete Project Structure
+
+Make sure your files are arranged like this:
+
+restaurant-app/
+│
+├── docker-compose.yml
+│
+└── flask-app/
+    │
+    ├── Dockerfile
+    │
+    └── app.py
+
+Complete Code for Revision
+
+1. app.py
+
+from flask import Flask
+app = Flask(__name__)
+@app.route('/')
+def home():
+    return "Restaurant Food Ordering API is running!"
+@app.route('/menu')
+def menu():
+    return {
+        "menu": [
+            {"item": "Pizza", "price": 250},
+            {"item": "Burger", "price": 150},
+            {"item": "Pasta", "price": 200}
+        ]
+    }
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+
+2. Dockerfile
+
+FROM python:3.9
+WORKDIR /app
+COPY app.py .
+RUN pip install flask
+EXPOSE 5000
+CMD ["python", "app.py"]
+
+3. docker-compose.yml
+
+services:
+  flask:
+    build: ./flask-app
+    container_name: flask_container
+    ports:
+      - "5000:5000"
+  nginx:
+    image: nginx:latest
+    container_name: nginx_container
+    ports:
+      - "80:80"
+
+Commands to Remember for the Exam
+
+Command	Purpose
+docker compose up -d	Start containers in background
+docker compose up -d --build	Build images and start containers
+docker ps	List running containers
+docker images	List Docker images
+docker compose logs	Display logs
+docker compose down	Stop and remove containers
+docker compose restart	Restart services
+
+Screenshots to capture for 25 marks
+
+1. Project folder structure.
+2. Flask app.py code.
+3. Dockerfile.
+4. Docker Compose file.
+5. Successful docker compose up -d --build.
+6. docker ps showing both containers.
+7. Flask output at localhost:5000.
+8. Flask menu JSON at localhost:5000/menu.
+9. Nginx welcome page at localhost.
+
+Important exam point: In this configuration, Flask and Nginx run in separate containers. Both are accessible through the host because their ports are mapped independently. Nginx is not yet configured as a reverse proxy for Flask; the question only asks to run both services and expose their ports.
